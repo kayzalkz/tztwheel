@@ -1,0 +1,399 @@
+{% extends "base.html" %}
+{% block title %}River Crossing Challenge{% endblock %}
+{% block body_class %}challenge-body{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+    html:has(.game-shell), body:has(.game-shell){
+        overflow: hidden;
+        overscroll-behavior: none;
+    }
+
+    .game-shell{
+        --wood-light:#C98A4B;
+        --wood-dark:#7C4E24;
+        --accent:#FF7A33;
+        --accent-light:#FFA35C;
+        --panel-bg:#FFFFFF;
+        --ink:#20301F;
+        --cross-duration: 1.15s;
+
+        position: fixed;
+        inset: 0;
+        z-index: 400;
+        display: flex;
+        flex-direction: column;
+        font-family:'Nunito', system-ui, sans-serif;
+        color: var(--ink);
+        background: #4FB6F5;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+
+    /* ---------- Top bar ---------- */
+    .gt-bar{
+        flex: 0 0 auto;
+        display:flex; align-items:center; gap:8px;
+        padding: max(10px, env(safe-area-inset-top)) 12px 8px;
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(8px);
+        z-index: 20;
+    }
+    .gt-back{
+        flex:0 0 auto; width:38px; height:38px; border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
+        font-size:18px; text-decoration:none; color:#0E5E86;
+        background:#fff; box-shadow:0 2px 0 rgba(0,0,0,.12);
+    }
+    .gt-hud{ display:flex; gap:8px; flex-wrap:wrap; flex:1 1 auto; min-width:0; }
+    .gt-chip{
+        font-weight:800; font-size:clamp(11.5px,3vw,13.5px);
+        background:rgba(255,255,255,.92); border-radius:999px; padding:7px 13px;
+        box-shadow:0 2px 0 rgba(0,0,0,.08);
+        color:#1c4e3a; white-space:nowrap;
+    }
+    .gt-info{
+        flex:0 0 auto; width:38px; height:38px; border-radius:50%; border:none;
+        font-family:'Baloo 2',sans-serif; font-weight:700; font-size:16px;
+        background:#fff; color:#0E5E86; box-shadow:0 2px 0 rgba(0,0,0,.12);
+        cursor:pointer;
+    }
+
+    /* ---------- PURE CSS BACKGROUND ENVIRONMENT ---------- */
+    .css-environment {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    
+    .css-sky {
+        position: absolute; inset: 0 0 45% 0;
+        background: linear-gradient(180deg, #3CA3E8 0%, #AEE0FF 100%);
+    }
+    .css-sun {
+        position: absolute; top: 15%; right: 20%;
+        width: clamp(40px, 8vw, 70px); aspect-ratio: 1;
+        background: #FFD873; border-radius: 50%;
+        box-shadow: 0 0 50px 15px rgba(255, 216, 115, 0.7);
+    }
+    
+    .css-mountain {
+        position: absolute; bottom: 0;
+        background: linear-gradient(180deg, #51A858 0%, #347A39 100%);
+        border-radius: 50% 50% 0 0;
+    }
+    .m1 { left: -10%; width: 45%; height: 50%; }
+    .m2 { right: -5%; width: 50%; height: 60%; background: linear-gradient(180deg, #44964B 0%, #2A662E 100%); }
+    .m3 { left: 25%; width: 50%; height: 35%; background: linear-gradient(180deg, #62BD69 0%, #3F8F45 100%); }
+
+    .css-ground {
+        position: absolute; inset: 54% 0 0 0;
+        background: #3E9151;
+    }
+    .css-dirt-base {
+        position: absolute; inset: 0;
+        background: #6A4423;
+    }
+    .css-river-water {
+        position: absolute; inset: 0;
+        background: linear-gradient(180deg, #45B0E6 0%, #1771A1 100%);
+        clip-path: polygon(38% 0, 62% 0, 85% 100%, 15% 100%);
+        display: flex; justify-content: center;
+    }
+    .css-water-lines {
+        position: absolute; inset: 0;
+        background: repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(255,255,255,0.15) 31px, rgba(255,255,255,0.15) 34px);
+        animation: flowWater 3s linear infinite;
+    }
+    @keyframes flowWater { from { background-position: 0 0; } to { background-position: 0 64px; } }
+
+    .css-bank-left, .css-bank-right {
+        position: absolute; top: 0; bottom: 8px;
+        background: linear-gradient(180deg, #7BC96F 0%, #4FA344 100%);
+    }
+    .css-bank-left {
+        left: 0; right: 50%;
+        clip-path: polygon(0 0, 75% 0, 28% 100%, 0 100%);
+        box-shadow: inset -10px 0 20px rgba(0,0,0,0.1);
+    }
+    .css-bank-right {
+        left: 50%; right: 0;
+        clip-path: polygon(25% 0, 100% 0, 100% 100%, 72% 100%);
+        box-shadow: inset 10px 0 20px rgba(0,0,0,0.1);
+    }
+
+    .css-tree { position: absolute; }
+    .css-tree-top {
+        width: 0; height: 0;
+        border-left: 15px solid transparent; border-right: 15px solid transparent;
+        border-bottom: 45px solid #286B33;
+    }
+    .css-tree-trunk {
+        width: 8px; height: 12px; background: #5C4033; margin: 0 auto;
+    }
+    .t1 { top: 15%; left: 10%; transform: scale(1.2); }
+    .t2 { top: 40%; left: 4%; transform: scale(0.9); }
+    .t3 { top: 10%; right: 12%; transform: scale(1.4); }
+    .t4 { top: 45%; right: 5%; transform: scale(1); }
+
+    /* ---------- Interactive Game Stage ---------- */
+    .game-stage{
+        flex: 1 1 auto; position:relative; min-height:0; margin: 0;
+    }
+    
+    .scene{
+        position:relative; z-index: 10; display:flex; align-items:stretch; height:100%;
+        gap:clamp(4px,1.6vmin,14px); padding: clamp(10px,2.4vmin,22px) clamp(8px,2vmin,18px);
+    }
+
+    .bank{ position:relative; flex:1 1 0; min-width:0; min-height:0; display:flex; flex-direction:column; justify-content:flex-end; }
+    .river{ position:relative; flex:1.5 1 0; min-width:0; min-height:0; }
+
+    .bank-label{
+        position:absolute; top: 10px; left: 10px;
+        font-family:'Baloo 2', sans-serif; font-weight:700; font-size:clamp(11px,2.6vmin,13px);
+        color:#fff; background:rgba(0,0,0,.4); padding:3px 12px; border-radius:999px;
+    }
+    .bank-tokens{
+        position:relative; display:flex; flex-wrap:wrap; align-content:flex-end; gap: 8px;
+        justify-content:center; min-height:70%; padding: 4px 4px 20px;
+    }
+
+    .boat-lane{ position:absolute; left:6%; right:6%; bottom:8%; height:36%; }
+    .boat{
+        position:absolute; bottom:0; left:0; width:45%; min-width:80px; max-width:180px;
+        transition: left var(--cross-duration) cubic-bezier(.45,.05,.55,.95);
+    }
+    .boat.boat--right{ left:55%; }
+    .boat-visual{
+        position:relative; animation: boatBob 2.6s ease-in-out infinite;
+        filter: drop-shadow(0 8px 8px rgba(0,10,20,.3));
+    }
+    @keyframes boatBob{ 0%,100%{ transform: translateY(0) rotate(-1.4deg);} 50%{ transform: translateY(-5px) rotate(1.4deg);} }
+    .boat-hull{ width:100%; display:block; }
+    
+    .boat-slots{
+        position:absolute; left:50%; bottom:36%; translate:-50% 0; display:flex; gap:10px;
+    }
+    .boat-slots:empty::after{ display:none; }
+
+    .oar{
+        position:absolute; left:8%; bottom:46%; width:36%; height:3px;
+        background: linear-gradient(90deg, var(--wood-dark), var(--wood-light));
+        border-radius:3px; transform-origin: 100% 50%; opacity:0; transition: opacity .2s ease;
+    }
+    .boat.sailing .oar{ opacity:1; animation: rowOar .55s ease-in-out infinite; }
+    @keyframes rowOar{ 0%,100%{ transform: rotate(-22deg);} 50%{ transform: rotate(14deg);} }
+    
+    /* ---------- Character tokens ---------- */
+    .token{
+        position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+        width: clamp(46px,13vmin,84px); padding: 4px 2px 2px;
+        background:transparent; border:none; margin:0; cursor:pointer;
+        touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+        animation: tokenSettle .18s ease both;
+    }
+    @keyframes tokenSettle{ from{ opacity:0; transform:translateY(4px) scale(.94);} to{ opacity:1; transform:none;} }
+    .token-shadow{
+        position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+        width:60%; height:8px; border-radius:50%; background:rgba(0,0,0,.4); filter:blur(2px);
+        transition: width .15s ease, opacity .15s ease;
+    }
+    .token-img{
+        width:clamp(40px,11.5vmin,72px); height:auto; line-height:1; object-fit:contain;
+        filter: drop-shadow(0 6px 5px rgba(0,0,0,.28)); transition: transform .15s ease;
+        display:block; margin-bottom:2px; pointer-events:none; -webkit-user-drag:none;
+    }
+    .token-label{
+        font-family:'Nunito',sans-serif; font-weight:800; font-size:12px;
+        color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.9);
+    }
+    .token:not(:disabled):hover .token-img{ transform:translateY(-4px) scale(1.06); }
+    .token:not(:disabled):hover .token-shadow{ width:44%; opacity:.65; }
+    .token:not(:disabled):active .token-img{ transform:translateY(-1px) scale(.96); }
+    .token:disabled{ opacity:.5; cursor:default; }
+
+    .token--boat{ width:auto; padding:0; animation: hopIn .32s cubic-bezier(.3,1.6,.4,1) both; }
+    .token--boat .token-label{ display:none; }
+    .token--boat .token-img{ width:clamp(30px,8.6vmin,52px); }
+    @keyframes hopIn{ 0%{ opacity:0; transform:translateY(-16px) scale(.7);} 60%{ transform:translateY(3px) scale(1.05);} 100%{ opacity:1; transform:none;} }
+
+    /* ---------- Bottom hint + dock ---------- */
+    .game-hint{
+        flex:0 0 auto; text-align:center; z-index: 10;
+        font-weight:800; font-size:clamp(12.5px,3.2vw,14.5px); color:#fff;
+        background: rgba(0,0,0,0.6); padding: 6px; border-radius: 8px;
+        margin: 8px 12px 0; min-height:18px;
+    }
+    .game-dock{
+        flex:0 0 auto; z-index: 10;
+        display:flex; align-items:center; justify-content:center; gap:10px;
+        padding: 8px 14px max(12px, env(safe-area-inset-bottom));
+        background: rgba(255,255,255,0.2);
+    }
+    .dock-btn{
+        font-family:'Nunito',sans-serif; font-weight:800; border:none; cursor:pointer; border-radius:16px;
+        touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+        transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    }
+    .dock-btn:not(:disabled):active{ transform:translateY(2px); }
+    .dock-btn:disabled{ opacity:.4; cursor:default; }
+    .dock-btn--primary{
+        flex: 1 1 auto; max-width:280px; font-size:clamp(14px,3.6vw,16.5px); padding:14px 20px;
+        background:linear-gradient(180deg, var(--accent-light), var(--accent)); color:#fff;
+        box-shadow:0 4px 0 rgba(0,0,0,.18), 0 6px 14px rgba(0,0,0,.14);
+    }
+    .dock-btn--ghost{
+        flex: 0 0 auto; font-size:clamp(12.5px,3vw,14px); padding:12px 16px;
+        background:rgba(255,255,255,.92); color:#0E5E86; box-shadow:0 3px 0 rgba(0,0,0,.1);
+    }
+
+    /* ---------- Overlays (FIXED VISIBILITY) ---------- */
+    .info-sheet, .result-overlay{ 
+        position:fixed; inset:0; z-index:500; display:flex; 
+        background:rgba(0,0,0,.85); 
+        backdrop-filter: blur(5px); 
+    }
+    .info-sheet{ align-items:flex-end; justify-content:center; }
+    .result-overlay{ z-index:600; align-items:center; justify-content:center; padding:20px; }
+    .hidden{ display:none !important; }
+    
+    .info-card, .result-box { 
+        background: #ffffff !important; 
+        box-shadow: 0 20px 50px rgba(0,0,0,.8); 
+    }
+    .info-card{ 
+        width:100%; max-width:460px; border-radius:22px 22px 0 0; 
+        padding: 22px 24px calc(22px + env(safe-area-inset-bottom)); 
+        animation: sheetUp .22s ease both; 
+    }
+    @keyframes sheetUp{ from{ transform:translateY(24px); opacity:0;} to{ transform:none; opacity:1;} }
+    
+    .info-card h2 { font-family:'Baloo 2',sans-serif; margin:0 0 8px; font-size:20px; color:#0f172a !important; }
+    .info-card p { font-size:14px; line-height:1.55; color:#334155 !important; margin:0 0 10px; font-weight: 600; }
+    .info-card .dock-btn--primary{ width:100%; max-width:none; margin-top:6px; }
+
+    .result-box{ 
+        border-radius:22px; padding:32px 28px; text-align:center; 
+        max-width:340px; width:100%; animation: popIn .28s cubic-bezier(.2,1.4,.4,1); 
+    }
+    @keyframes popIn{ from{ transform:scale(.85); opacity:0;} to{ transform:scale(1); opacity:1;} }
+    .result-crown{ font-size:52px; margin-bottom:6px; filter:drop-shadow(0 6px 6px rgba(0,0,0,.25)); }
+    .result-kicker{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:13px; letter-spacing:.03em; color:var(--accent); margin:0 0 6px; }
+    .result-box h2{ font-family:'Baloo 2',sans-serif; margin:0 0 8px; font-size:24px; color:#0f172a !important; }
+    .result-tease{ font-size:14px; color:#334155 !important; margin:0 0 18px; line-height:1.5; font-weight: 600; }
+
+    @media (max-width:420px){ .token-label{ display:none; } }
+</style>
+
+<div class="game-shell" id="gameShell">
+    
+    <!-- Pure CSS Background Environment -->
+    <div class="css-environment">
+        <div class="css-sky">
+            <div class="css-sun"></div>
+            <div class="css-mountain m1"></div>
+            <div class="css-mountain m2"></div>
+            <div class="css-mountain m3"></div>
+        </div>
+        <div class="css-ground">
+            <div class="css-dirt-base"></div>
+            <div class="css-river-water">
+                <div class="css-water-lines"></div>
+            </div>
+            <div class="css-bank-left">
+                <div class="css-tree t1"><div class="css-tree-top"></div><div class="css-tree-trunk"></div></div>
+                <div class="css-tree t2"><div class="css-tree-top"></div><div class="css-tree-trunk"></div></div>
+            </div>
+            <div class="css-bank-right">
+                <div class="css-tree t3"><div class="css-tree-top"></div><div class="css-tree-trunk"></div></div>
+                <div class="css-tree t4"><div class="css-tree-top"></div><div class="css-tree-trunk"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="gt-bar">
+        <a href="/" class="gt-back" aria-label="Back to home">←</a>
+        <div class="gt-hud">
+            <span class="gt-chip" id="boatStatus">🚣 Left Bank</span>
+            <span class="gt-chip">Moves <span id="moveCount">0</span></span>
+        </div>
+        <button type="button" class="gt-info" id="infoBtn" aria-label="How to play">?</button>
+    </div>
+
+    <div class="game-stage">
+        <div class="scene">
+            <div class="bank bank--left">
+                <span class="bank-label">Left Bank</span>
+                <div class="bank-tokens" id="bankLeft"></div>
+            </div>
+
+            <div class="river">
+                <div class="boat-lane">
+                    <div class="boat" id="boat">
+                        <div class="boat-visual">
+                            <svg class="boat-hull" viewBox="0 0 220 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <defs>
+                                    <linearGradient id="woodGrad" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0" stop-color="#D79A5C"/>
+                                        <stop offset="1" stop-color="#7C4E24"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M10 52 Q20 88 110 90 Q200 88 210 52 Q160 68 110 68 Q60 68 10 52 Z" fill="url(#woodGrad)" stroke="#5f3a19" stroke-width="3" stroke-linejoin="round"/>
+                                <path d="M12 52 Q60 36 110 36 Q160 36 208 52" fill="none" stroke="#5f3a19" stroke-width="3" stroke-linecap="round" opacity=".55"/>
+                                <path d="M40 58 Q110 74 180 58" fill="none" stroke="#5f3a19" stroke-width="2" opacity=".3"/>
+                            </svg>
+                            <div class="oar" aria-hidden="true"></div>
+                            <div class="boat-slots" id="boatSlots"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bank bank--right">
+                <span class="bank-label">Right Bank</span>
+                <div class="bank-tokens" id="bankRight"></div>
+            </div>
+        </div>
+    </div>
+
+    <p class="game-hint" id="challengeHint">Load the Farmer and a passenger, then tap "Row Across".</p>
+
+    <div class="game-dock">
+        <button id="undoBtn" class="dock-btn dock-btn--ghost">Undo</button>
+        <button id="crossBtn" class="dock-btn dock-btn--primary">🚣 Row Across</button>
+        <button id="resetBtn" class="dock-btn dock-btn--ghost">Reset</button>
+    </div>
+</div>
+
+<div class="info-sheet hidden" id="infoSheet">
+    <div class="info-card">
+        <h2>River Crossing Challenge</h2>
+        <p>Ferry the Farmer, Fox, Chicken and Grain to the right bank. The boat carries the Farmer plus at most one passenger.</p>
+        <p>🦊 + 🐔 or 🐔 + 🌾 can never be left alone on a bank without the Farmer watching them.</p>
+        <p>Tap the Farmer to put him in the boat, then tap "Row Across" to sail.</p>
+        <button type="button" id="infoClose" class="dock-btn dock-btn--primary">Got it</button>
+    </div>
+</div>
+
+<div id="challengeOverlay" class="result-overlay hidden">
+    <div class="result-box">
+        <div class="result-crown" id="challengeIcon">🦊</div>
+        <p class="result-kicker" id="challengeKicker">OH NO!</p>
+        <h2 id="challengeText"></h2>
+        <p class="result-tease" id="challengeSub"></p>
+        <button id="challengeAction" class="dock-btn dock-btn--primary">Restart</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.js"></script>
+<script src="{{ url_for('static', filename='js/challenge.js') }}"></script>
+{% endblock %}

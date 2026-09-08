@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Spin the Wheel{% endblock %}
+{% block body_class %}wheel-body{% endblock %}
+
+{% block content %}
+<div class="wheel-page-container">
+    <header class="wheel-topbar">
+        <a href="/" class="topbar-back" aria-label="Back to home">← Home</a>
+        <div class="user-info">
+            <span class="user-info-hello">Good luck,</span>
+            <span class="user-info-name">{{ user.name }}</span>
+        </div>
+    </header>
+
+    <div class="wheel-stage">
+        <div class="wheel-halo" aria-hidden="true"></div>
+        <div class="wheel-container">
+            <div class="indicator" aria-hidden="true"></div>
+            <canvas id="wheelCanvas" width="640" height="640"></canvas>
+            <button id="spinButton" class="spin-btn">SPIN NOW</button>
+        </div>
+        <p class="wheel-hint">Take a deep breath… one spin changes everything.</p>
+    </div>
+
+    <div id="resultOverlay" class="result-overlay hidden">
+        <div id="resultBox" class="result-box">
+            <div class="result-flash" aria-hidden="true"></div>
+            <div class="result-crown" aria-hidden="true">👑</div>
+            <p class="result-kicker">CONGRATULATIONS</p>
+            <p class="result-you-won">YOU WON</p>
+            <h2 id="resultText"></h2>
+            <p class="result-tease">Feeling lucky? That spark you feel — come back and spin again.</p>
+            <a href="/" class="btn btn-primary back-link">Play Again Next Time</a>
+        </div>
+    </div>
+
+    <aside class="winners-sidebar">
+        <h3>Recent Winners</h3>
+        <ul class="winner-list-animated">
+            {% for winner in winners %}
+            <li style="animation-delay: {{ loop.index * 0.1 }}s;">
+                <span class="winner-name">{{ winner.name }}</span>
+                <span class="winner-amount">MMK {{ winner.prize | int | format_currency }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.0/dist/confetti.browser.js"></script>
+<script>
+    const prizesData = JSON.parse('{{ prizes | tojson | safe }}');
+    const user = JSON.parse('{{ user | tojson | safe }}');
+</script>
+<script src="{{ url_for('static', filename='js/wheel.js') }}"></script>
+{% endblock %}

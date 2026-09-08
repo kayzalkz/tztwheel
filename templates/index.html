@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Wheel of Price{% endblock %}
+{% block body_class %}landing-body{% endblock %}
+
+{% block content %}
+<div class="landing" id="landing">
+    <div class="figurine-stage" id="figurineStage" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <a href="/challenge" class="landing-cta">Spin &amp; Win Now</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+{% endblock %}
