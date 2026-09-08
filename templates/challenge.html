@@ -143,8 +143,95 @@
     .t3 { top: 10%; right: 12%; transform: scale(1.4); }
     .t4 { top: 45%; right: 5%; transform: scale(1); }
 
-    /* ---------- Interactive Game Stage ---------- */
-    .css-environment {
+  /* ---------- Cinematic CSS Landscape ---------- */
+  .css-environment {
+  background: #8fcfe4;
+  }
+  .css-environment::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 16% 7% at 20% 16%, rgba(255,255,255,.82) 0 45%, transparent 46%),
+    radial-gradient(ellipse 12% 6% at 28% 18%, rgba(255,255,255,.7) 0 45%, transparent 46%),
+    radial-gradient(ellipse 18% 8% at 68% 15%, rgba(255,255,255,.72) 0 44%, transparent 45%),
+    radial-gradient(ellipse 12% 6% at 77% 18%, rgba(255,255,255,.62) 0 44%, transparent 45%),
+    linear-gradient(180deg, rgba(255,255,255,.12), transparent 37%);
+  filter: blur(4px);
+  }
+  .css-environment::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 42%, rgba(25,75,62,.12) 67%, rgba(20,55,40,.22));
+  }
+  .css-sky {
+  inset: 0 0 45% 0;
+  background: linear-gradient(180deg, #4296c6 0%, #a9dff0 72%, #e6f1d7 100%);
+  }
+  .css-sun {
+  top: 14%; right: 13%;
+  background: #ffe3a0;
+  box-shadow: 0 0 34px 13px rgba(255,225,145,.5), 0 0 100px 34px rgba(255,240,185,.2);
+  }
+  .css-mountain {
+  bottom: 36%;
+  border-radius: 50% 50% 0 0;
+  box-shadow: inset 0 16px 20px rgba(255,255,255,.12), 0 -8px 26px rgba(33,80,61,.16);
+  }
+  .m1 { left: -12%; width: 54%; height: 31%; background: linear-gradient(180deg, #6da47d, #386c55); }
+  .m2 { right: -12%; width: 58%; height: 38%; background: linear-gradient(180deg, #7c9c7a, #526b59); }
+  .m3 { left: 18%; width: 66%; height: 25%; background: linear-gradient(180deg, #4f8969, #31634f); }
+  .css-ground {
+  inset: 50% 0 0 0;
+  background:
+    radial-gradient(ellipse at 17% 6%, rgba(213,231,129,.58), transparent 23%),
+    radial-gradient(ellipse at 87% 8%, rgba(212,226,132,.48), transparent 25%),
+    linear-gradient(180deg, #9bcf73 0%, #5da45a 54%, #397b4c 100%);
+  }
+  .css-dirt-base { background: linear-gradient(180deg, #9b724d, #604432); opacity: .78; }
+  .css-river-water {
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.2), transparent 14%, rgba(255,255,255,.12) 54%, transparent 88%),
+    linear-gradient(180deg, #8bcbd0 0%, #438e9f 42%, #22647e 100%);
+  box-shadow: inset 0 0 42px rgba(22,70,81,.3), 0 -8px 30px rgba(209,245,232,.2);
+  }
+  .css-water-lines {
+  background: repeating-linear-gradient(0deg, transparent 0 26px, rgba(233,255,246,.32) 27px 29px, transparent 30px 55px);
+  animation: flowWater 4.5s linear infinite;
+  mix-blend-mode: screen;
+  }
+  .css-bank-left, .css-bank-right {
+  background:
+    radial-gradient(circle at 12% 25%, #fff2bc 0 2px, transparent 3px),
+    radial-gradient(circle at 33% 65%, #f6a3a0 0 2px, transparent 3px),
+    radial-gradient(circle at 72% 42%, #e4c979 0 2px, transparent 3px),
+    linear-gradient(180deg, #a9d77a 0%, #69ad5d 58%, #3f814d 100%);
+  background-size: 48px 42px, 57px 52px, 70px 48px, auto;
+  }
+  .css-tree-top {
+  width: 92px; height: 76px;
+  border: 0;
+  border-radius: 52% 48% 44% 56%;
+  background:
+    radial-gradient(circle at 25% 32%, #b1d778 0 12%, transparent 13%),
+    radial-gradient(circle at 68% 25%, #86bf62 0 18%, transparent 19%),
+    radial-gradient(circle at 42% 70%, #59994e 0 24%, transparent 25%),
+    #3d7c48;
+  box-shadow: 0 8px 12px rgba(23,65,39,.28);
+  }
+  .css-tree-trunk { width: 14px; height: 30px; background: linear-gradient(90deg,#62452f,#956540,#4f3627); }
+  .t1 { top: 3%; left: 3%; transform: scale(1.55); }
+  .t2 { top: 27%; left: 16%; transform: scale(.72); }
+  .t3 { top: 7%; right: 4%; transform: scale(1.45); }
+  .t4 { top: 31%; right: 17%; transform: scale(.72); }
+
+  /* ---------- Interactive Game Stage ---------- */
+  .css-environment {
         background: #9edcf0;
     }
     .css-environment::before {
