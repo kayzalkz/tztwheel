@@ -41,20 +41,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const pine = (x, y, s, color) => { ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x, y - 48 * s); ctx.lineTo(x - 24 * s, y); ctx.lineTo(x + 24 * s, y); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#6a4932'; ctx.fillRect(x - 3 * s, y, 6 * s, 14 * s); };
         for (let x = -20; x < width + 30; x += 28) pine(x, forestY + 16 + ((x * 7) % 18), .55 + ((x * 13) % 4) / 10, x % 3 ? '#376f50' : '#4f8b60');
 
-        const ground = ctx.createLinearGradient(0, bankTop, 0, height); ground.addColorStop(0, '#a8d678'); ground.addColorStop(.55, '#67ad59'); ground.addColorStop(1, '#3c7d4a');
+        const ground = ctx.createLinearGradient(0, bankTop, 0, height); ground.addColorStop(0, '#b4dc84'); ground.addColorStop(.38, '#75b85f'); ground.addColorStop(1, '#356f47');
         ctx.fillStyle = ground; ctx.fillRect(0, bankTop, width, height - bankTop);
-        ctx.fillStyle = '#4a9a62';
-        for (let x = 12; x < width; x += 32) for (let y = bankTop + 20; y < height; y += 32) { ctx.beginPath(); ctx.arc(x + ((y * 3) % 13), y, 1.6, 0, Math.PI * 2); ctx.fill(); }
+        const riverTop = horizon + 45;
+        const leftShore = (y) => width * (.39 - ((y - riverTop) / height) * .23);
+        const rightShore = (y) => width * (.61 + ((y - riverTop) / height) * .23);
 
-        const riverTop = horizon + 45, riverBottom = height;
-        ctx.save(); ctx.beginPath(); ctx.moveTo(width * .39, riverTop); ctx.lineTo(width * .61, riverTop); ctx.lineTo(width * .84, riverBottom); ctx.lineTo(width * .16, riverBottom); ctx.closePath(); ctx.clip();
-        const water = ctx.createLinearGradient(0, riverTop, 0, height); water.addColorStop(0, '#88c9ce'); water.addColorStop(.45, '#428e9f'); water.addColorStop(1, '#205d79'); ctx.fillStyle = water; ctx.fillRect(0, riverTop, width, height);
-        ctx.strokeStyle = 'rgba(224,255,247,.28)'; ctx.lineWidth = 2;
-        for (let y = riverTop + 20; y < height; y += 30) { const spread = (y - riverTop) * .42; ctx.beginPath(); ctx.moveTo(width / 2 - spread, y); ctx.lineTo(width / 2 + spread, y); ctx.stroke(); }
+        ctx.fillStyle = 'rgba(248,205,137,.8)';
+        ctx.beginPath(); ctx.moveTo(0, height); ctx.lineTo(0, bankTop + 80); ctx.lineTo(leftShore(bankTop + 80), bankTop + 80); ctx.quadraticCurveTo(leftShore(height * .77) - 34, height * .78, leftShore(height), height); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(width, height); ctx.lineTo(width, bankTop + 72); ctx.lineTo(rightShore(bankTop + 72), bankTop + 72); ctx.quadraticCurveTo(rightShore(height * .77) + 34, height * .78, rightShore(height), height); ctx.closePath(); ctx.fill();
+
+        ctx.fillStyle = 'rgba(41,100,55,.24)';
+        for (let x = 12; x < width; x += 28) for (let y = bankTop + 16; y < height; y += 26) { const sway = Math.sin(x * .08 + y) * 4; ctx.beginPath(); ctx.ellipse(x + sway, y, 2.2, 5, sway * .04, 0, Math.PI * 2); ctx.fill(); }
+
+        ctx.save(); ctx.beginPath(); ctx.moveTo(width * .39, riverTop); ctx.lineTo(width * .61, riverTop); ctx.lineTo(rightShore(height), height); ctx.lineTo(leftShore(height), height); ctx.closePath(); ctx.clip();
+        const water = ctx.createLinearGradient(0, riverTop, 0, height); water.addColorStop(0, '#9ed6d2'); water.addColorStop(.38, '#4d9aaa'); water.addColorStop(1, '#1f5c79'); ctx.fillStyle = water; ctx.fillRect(0, riverTop, width, height);
+        for (let y = riverTop + 12; y < height; y += 22) { const p = (y - riverTop) / height; const spread = 18 + p * width * .26; ctx.strokeStyle = `rgba(236,255,243,${.28 - p * .12})`; ctx.lineWidth = 2 + p * 1.5; ctx.beginPath(); ctx.moveTo(width / 2 - spread, y + Math.sin(y) * 3); ctx.quadraticCurveTo(width / 2, y - 4, width / 2 + spread, y + Math.cos(y) * 3); ctx.stroke(); }
         ctx.restore();
 
-        const tree = (x, y, s) => { ctx.fillStyle = '#65472f'; ctx.fillRect(x - 8 * s, y, 16 * s, 64 * s); ctx.fillStyle = '#2f7148'; ctx.beginPath(); ctx.arc(x, y - 20 * s, 48 * s, 0, Math.PI * 2); ctx.arc(x - 35 * s, y + 4 * s, 31 * s, 0, Math.PI * 2); ctx.arc(x + 35 * s, y + 4 * s, 32 * s, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#75ae58'; ctx.beginPath(); ctx.arc(x - 18 * s, y - 39 * s, 16 * s, 0, Math.PI * 2); ctx.arc(x + 24 * s, y - 28 * s, 13 * s, 0, Math.PI * 2); ctx.fill(); };
-        tree(width * .045, height * .55, 1.45); tree(width * .16, height * .66, .62); tree(width * .955, height * .56, 1.35); tree(width * .84, height * .68, .58);
+        const rock = (x, y, s) => { ctx.fillStyle = '#786c62'; ctx.shadowColor = 'rgba(20,52,35,.28)'; ctx.shadowBlur = 8; ctx.beginPath(); ctx.ellipse(x, y, 23 * s, 13 * s, -.18, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0; ctx.fillStyle = '#a59683'; ctx.beginPath(); ctx.ellipse(x - 5 * s, y - 4 * s, 13 * s, 6 * s, -.2, 0, Math.PI * 2); ctx.fill(); };
+        rock(width * .13, height * .77, 1.4); rock(width * .27, height * .67, .65); rock(width * .88, height * .73, 1.3); rock(width * .76, height * .84, .72);
+
+        const flower = (x, y, color, s) => { ctx.strokeStyle = '#3d7d42'; ctx.lineWidth = 2 * s; ctx.beginPath(); ctx.moveTo(x, y + 18 * s); ctx.lineTo(x, y); ctx.stroke(); ctx.fillStyle = color; for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5; ctx.beginPath(); ctx.arc(x + Math.cos(a) * 5 * s, y + Math.sin(a) * 5 * s, 4 * s, 0, Math.PI * 2); ctx.fill(); } ctx.fillStyle = '#f7c94a'; ctx.beginPath(); ctx.arc(x, y, 2.3 * s, 0, Math.PI * 2); ctx.fill(); };
+        for (let i = 0; i < 34; i++) { const side = i % 2 ? .9 : .1; flower(width * (side * .76 + (i % 7) * .025), height * (.78 + (i % 5) * .045), ['#fff4dc','#f4a8a8','#f5d05e','#b6b3eb'][i % 4], .55 + (i % 3) * .18); }
+
+        const tree = (x, y, s) => { ctx.fillStyle = '#63452f'; ctx.fillRect(x - 9 * s, y, 18 * s, 74 * s); ctx.fillStyle = '#2a6443'; ctx.beginPath(); ctx.arc(x, y - 22 * s, 51 * s, 0, Math.PI * 2); ctx.arc(x - 38 * s, y + 2 * s, 35 * s, 0, Math.PI * 2); ctx.arc(x + 38 * s, y + 3 * s, 36 * s, 0, Math.PI * 2); ctx.fill(); const leaves = ['#477f46','#60964b','#7eaf58','#9bc768']; for (let i = 0; i < 11; i++) { ctx.fillStyle = leaves[i % leaves.length]; ctx.beginPath(); ctx.ellipse(x + Math.cos(i * 2.4) * 42 * s, y - 25 * s + Math.sin(i * 1.7) * 34 * s, 16 * s, 9 * s, i * .3, 0, Math.PI * 2); ctx.fill(); } };
+        tree(width * .045, height * .55, 1.65); tree(width * .16, height * .66, .65); tree(width * .955, height * .56, 1.5); tree(width * .84, height * .68, .65);
+
+        ctx.fillStyle = 'rgba(255,239,200,.1)'; ctx.fillRect(0, horizon, width, height * .08);
     }
 
     drawNatureScene();
