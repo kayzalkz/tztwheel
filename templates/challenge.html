@@ -71,6 +71,16 @@
         z-index: 0;
         overflow: hidden;
         pointer-events: none;
+        display: none;
+    }
+    .nature-canvas {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        pointer-events: none;
     }
     
     .css-sky {
@@ -454,7 +464,9 @@
 
 <div class="game-shell" id="gameShell">
     
-    <!-- Pure CSS Background Environment -->
+    <canvas class="nature-canvas" id="natureCanvas" aria-hidden="true"></canvas>
+
+    <!-- Legacy CSS Background Environment -->
     <div class="css-environment">
         <div class="css-sky">
             <div class="css-sun"></div>
